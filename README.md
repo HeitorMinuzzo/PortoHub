@@ -47,7 +47,7 @@ npm run build
 npm start
 ```
 
-O build usa o adapter-node. As variáveis `HOST`, `PORT` e `ORIGIN` seguem a configuração do adapter. `PORTOHUB_DB_PATH` permite informar outro caminho para o banco. A hospedagem deve manter armazenamento persistente para essa pasta.
+O build usa o adapter-node. `npm start` inicia o servidor HTTP local em `http://127.0.0.1:3000`, com `HOST` e `PORT` configuráveis. `PORTOHUB_DB_PATH` permite informar outro caminho para o banco. O inicializador informa o protocolo HTTP real ao adapter e preserva a proteção de origem dos formulários. Para uma futura hospedagem com HTTPS/proxy, configure a origem e o proxy conforme o adapter-node 6. A hospedagem deve manter armazenamento persistente para a pasta do banco.
 
 Esta versão foi preparada para execução local/interna e não inclui login. Não houve publicação em hospedagem externa.
 

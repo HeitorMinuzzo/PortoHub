@@ -48,10 +48,20 @@ export function formatDate(value: string | null | undefined) {
 export function today() {
 	return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
 }
-export function formatCnpj(value: string) {
+// CPF: 11 dígitos. CNPJ: 14 caracteres (pode ter letras nos 12 primeiros).
+export function documentType(value: string): 'CPF' | 'CNPJ' {
 	const clean = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-	if (clean.length !== 14) return value;
-	return `${clean.slice(0, 2)}.${clean.slice(2, 5)}.${clean.slice(5, 8)}/${clean.slice(8, 12)}-${clean.slice(12)}`;
+	return clean.length <= 11 && /^\d*$/.test(clean) ? 'CPF' : 'CNPJ';
+}
+// Formata enquanto digita: até 11 dígitos segue o CPF, depois disso o CNPJ
+export function maskDocument(value: string) {
+	const clean = value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 14);
+	const partes = documentType(clean) === 'CPF' ? [[0, 3, ''], [3, 6, '.'], [6, 9, '.'], [9, 11, '-']] : [[0, 2, ''], [2, 5, '.'], [5, 8, '.'], [8, 12, '/'], [12, 14, '-']];
+	return (partes as [number, number, string][]).map(([de, ate, sep]) => (clean.length > de ? sep + clean.slice(de, ate) : '')).join('');
+}
+export function formatDocument(value: string) {
+	const clean = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+	return clean.length === 11 || clean.length === 14 ? maskDocument(clean) : value;
 }
 export function emptyProcess(): ProcessInput {
 	return {

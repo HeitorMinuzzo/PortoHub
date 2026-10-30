@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createStore } from '../src/lib/server/store.ts';
 import { parseClient, parseProcess, ValidationError } from '../src/lib/server/validation.ts';
-import { emptyProcess, formatDate } from '../src/lib/domain.ts';
+import { emptyProcess, formatDate, formatDocument, maskDocument } from '../src/lib/domain.ts';
 
 function fixture() {
 	const store = createStore(':memory:');
@@ -73,12 +73,24 @@ test('não aceita processo para cliente inexistente', () => {
 	try { assert.throws(() => store.saveProcess({ ...input, clientId: 999 }), ValidationError); }
 	finally { store.close(); }
 });
-test('normaliza o CNPJ sem descartar caracteres inválidos silenciosamente', () => {
+test('formata CPF e CNPJ enquanto digita', () => {
+	assert.equal(maskDocument('1234'), '123.4');
+	assert.equal(maskDocument('12345678909'), '123.456.789-09');
+	assert.equal(maskDocument('123456789091'), '12.345.678/9091');
+	assert.equal(maskDocument('00000000000191999'), '00.000.000/0001-91');
+	assert.equal(maskDocument('12abc34501de35'), '12.ABC.345/01DE-35');
+	assert.equal(formatDocument('12345678909'), '123.456.789-09');
+});
+test('normaliza o CPF/CNPJ sem descartar caracteres inválidos silenciosamente', () => {
 	const data = new FormData();
 	data.set('name', ' Empresa '); data.set('cnpj', '00.000.000/0001-91'); data.set('contact', 'Contato');
 	assert.equal(parseClient(data).cnpj, '00000000000191');
 	data.set('cnpj', '12.ABC.345/01DE-35');
 	assert.equal(parseClient(data).cnpj, '12ABC34501DE35');
+	data.set('cnpj', '123.456.789-09');
+	assert.equal(parseClient(data).cnpj, '12345678909');
+	data.set('cnpj', '1234567890');
+	assert.throws(() => parseClient(data), ValidationError);
 	data.set('cnpj', '00!000000000191');
 	assert.throws(() => parseClient(data), ValidationError);
 });

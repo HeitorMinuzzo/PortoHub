@@ -35,7 +35,7 @@ function choice<T extends string>(data: FormData, key: string, choices: readonly
 export function parseClient(data: FormData) {
 	const name = text(data, 'name', true);
 	const cnpj = text(data, 'cnpj', true).toUpperCase().replace(/[.\s/\-]/g, '');
-	if (!/^[A-Z0-9]{12}\d{2}$/.test(cnpj)) throw new ValidationError('cnpj', 'Informe o CNPJ completo, com 14 caracteres.');
+	if (!/^\d{11}$/.test(cnpj) && !/^[A-Z0-9]{12}\d{2}$/.test(cnpj)) throw new ValidationError('cnpj', 'Informe o CPF (11 dígitos) ou o CNPJ (14 caracteres) completo.');
 	const contact = text(data, 'contact', true, 300);
 	return { name, cnpj, contact };
 }

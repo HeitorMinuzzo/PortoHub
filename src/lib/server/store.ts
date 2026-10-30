@@ -60,7 +60,7 @@ export function createStore(filename: string) {
 		getClient,
 		saveClient(input: Omit<Client, 'id'>, clientId?: number) {
 			const duplicate = db.prepare('SELECT id FROM clients WHERE cnpj = ? AND id != ?').get(input.cnpj, clientId ?? 0);
-			if (duplicate) throw new ValidationError('cnpj', 'Já existe um cliente com este CNPJ.');
+			if (duplicate) throw new ValidationError('cnpj', 'Já existe um cliente com este CPF/CNPJ.');
 			if (clientId) {
 				if (!getClient(clientId)) throw new ValidationError('id', 'Cliente não encontrado.');
 				db.prepare('UPDATE clients SET name = ?, cnpj = ?, contact = ? WHERE id = ?').run(input.name, input.cnpj, input.contact, clientId);

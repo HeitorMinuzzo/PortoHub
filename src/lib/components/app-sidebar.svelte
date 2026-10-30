@@ -7,10 +7,9 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import SunIcon from '@lucide/svelte/icons/sun';
 	import MoonIcon from '@lucide/svelte/icons/moon';
-	import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
 	import { toggleMode } from 'mode-watcher';
 
-	let { counts, clientCount, demo = false }: { counts: { open: number }; clientCount: number; demo?: boolean } = $props();
+	let { counts, clientCount }: { counts: { open: number }; clientCount: number } = $props();
 
 	const sidebar = Sidebar.useSidebar();
 	const clientesAtivo = $derived(page.url.pathname.startsWith('/clientes'));
@@ -71,12 +70,6 @@
 	</Sidebar.Content>
 
 	<Sidebar.Footer>
-		{#if demo}
-			<div class="border-warning/30 bg-warning/10 text-warning flex gap-2 rounded-md border p-2 text-xs">
-				<FlaskConicalIcon class="mt-0.5 size-3.5 shrink-0" />
-				<span>Modo demonstração. Os dados são de exemplo.</span>
-			</div>
-		{/if}
 		<Sidebar.Menu>
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton onclick={toggleMode}>

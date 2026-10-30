@@ -4,7 +4,7 @@
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import { cn } from '#lib/utils.js';
-	import { formatCnpj, type Client } from '#lib/domain.js';
+	import { formatDocument, type Client } from '#lib/domain.js';
 
 	let {
 		clients,
@@ -36,7 +36,7 @@
 			.join('')
 			.toUpperCase();
 
-	// Busca sem diferenciar acentos e maiúsculas, por nome ou CNPJ
+	// Busca sem diferenciar acentos e maiúsculas, por nome, CPF ou CNPJ
 	const normalizar = (texto: string) => texto.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
 	function filtrar(_value: string, busca: string, keywords: string[] = []) {
 		const termo = normalizar(busca.trim());
@@ -68,7 +68,7 @@
 			{@render avatar(selecionado.name, 'bg-primary/10 text-primary')}
 			<span class="grid min-w-0 flex-1 leading-tight">
 				<span class="truncate font-medium">{selecionado.name}</span>
-				<span class="text-muted-foreground truncate text-xs tabular-nums">{formatCnpj(selecionado.cnpj)}</span>
+				<span class="text-muted-foreground truncate text-xs tabular-nums">{formatDocument(selecionado.cnpj)}</span>
 			</span>
 		{:else}
 			<span class="text-muted-foreground flex-1 truncate px-0.5">Selecione um cliente</span>
@@ -84,7 +84,7 @@
 			<Command.Root filter={filtrar} {value}>
 				<div class="flex items-center gap-2 border-b px-3">
 					<SearchIcon class="text-muted-foreground size-4 shrink-0" />
-					<Command.Input placeholder="Buscar por nome ou CNPJ…" class="placeholder:text-muted-foreground h-10 w-full bg-transparent text-sm outline-none" />
+					<Command.Input placeholder="Buscar por nome, CPF ou CNPJ…" class="placeholder:text-muted-foreground h-10 w-full bg-transparent text-sm outline-none" />
 				</div>
 				<Command.List class="max-h-72 overflow-y-auto overscroll-contain p-1">
 					<Command.Viewport>
@@ -92,14 +92,14 @@
 						{#each clients as client (client.id)}
 							<Command.Item
 								value={String(client.id)}
-								keywords={[client.name, client.cnpj, formatCnpj(client.cnpj)]}
+								keywords={[client.name, client.cnpj, formatDocument(client.cnpj)]}
 								onSelect={() => escolher(client)}
 								class="data-selected:bg-accent data-selected:text-accent-foreground flex cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-sm outline-none select-none"
 							>
 								{@render avatar(client.name)}
 								<span class="grid min-w-0 flex-1 leading-tight">
 									<span class="truncate">{client.name}</span>
-									<span class="text-muted-foreground truncate text-xs tabular-nums">{formatCnpj(client.cnpj)}</span>
+									<span class="text-muted-foreground truncate text-xs tabular-nums">{formatDocument(client.cnpj)}</span>
 								</span>
 								<CheckIcon class={cn('text-primary size-4 shrink-0', String(client.id) !== value && 'invisible')} />
 							</Command.Item>

@@ -4,9 +4,9 @@ Controle direto de clientes e processos de importação e exportação.
 
 ## Funcionalidades
 
-- Clientes com razão social, CNPJ e contato; cadastro e edição.
+- Clientes com nome ou razão social, CPF ou CNPJ e contato; cadastro e edição.
 - Processos vinculados a clientes, com todos os campos solicitados: número manual, abertura, referência do cliente, operação, modal, prioridade, exportador, agente de carga, processo do agente, armador, navio, locais e datas de embarque e chegada.
-- Filtros combináveis por mês de abertura, data exata de chegada e situação.
+- Filtros combináveis por mês de abertura, data exata de chegada, prioridade e situação.
 - Encerramento com data registrada e consulta dos dados encerrados.
 - Banco SQLite no servidor, com persistência entre execuções.
 - Layout adaptado para computador e celular.
@@ -20,15 +20,7 @@ npm ci
 npm run dev
 ```
 
-O aplicativo começa vazio. O banco real é criado automaticamente em `data/portohub.sqlite` e nunca é versionado.
-
-Para avaliar o visual com dados fictícios:
-
-```sh
-npm run demo
-```
-
-A demonstração usa **outro banco**, `data/demo.sqlite`, identificado na interface. Os exemplos são criados apenas se essa base estiver vazia. Os cadastros feitos na demonstração ficam exclusivamente nessa base.
+O aplicativo começa vazio. O banco é criado automaticamente em `data/portohub.sqlite` e nunca é versionado.
 
 ## Verificação
 
@@ -54,7 +46,7 @@ Esta versão foi preparada para execução local/interna e não inclui login. N�
 ## Dados e regras
 
 - Número do processo único, sem diferenciar maiúsculas e minúsculas.
-- CNPJ normalizado e único; aceita formato numérico ou alfanumérico. Confere o formato, sem consulta cadastral externa ou validação dos dígitos verificadores.
+- CPF (11 dígitos) ou CNPJ (14 caracteres, numérico ou alfanumérico), formatado automaticamente ao digitar, normalizado e único. Confere o formato, sem consulta cadastral externa ou validação dos dígitos verificadores.
 - Para abrir um processo, são obrigatórios cliente, número e data de abertura. Operação, modal e prioridade têm opções iniciais. As demais informações podem ser complementadas depois.
 - Datas de transporte são opcionais. Quando ambas são preenchidas, a chegada deve ocorrer no embarque ou depois.
 - Encerrar mantém o processo disponível para consulta e impede alterações; não existe exclusão nem reabertura nesta versão.

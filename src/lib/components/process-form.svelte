@@ -5,20 +5,19 @@
 	import { Button } from '#lib/components/ui/button/index.js';
 	import { Input } from '#lib/components/ui/input/index.js';
 	import { Label } from '#lib/components/ui/label/index.js';
+	import ClientPicker from '#lib/components/client-picker.svelte';
 	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
 	import ArrowDownLeftIcon from '@lucide/svelte/icons/arrow-down-left';
 	import ArrowUpRightIcon from '@lucide/svelte/icons/arrow-up-right';
 	import ShipIcon from '@lucide/svelte/icons/ship';
 	import PlaneIcon from '@lucide/svelte/icons/plane';
 	import TruckIcon from '@lucide/svelte/icons/truck';
-	import CircleIcon from '@lucide/svelte/icons/circle';
-	import FlameIcon from '@lucide/svelte/icons/flame';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import LoaderIcon from '@lucide/svelte/icons/loader-circle';
-	import { emptyProcess, type Client, type ProcessInput } from '#lib/domain.js';
+	import { emptyProcess, priorities, priorityLabels, type Client, type ProcessInput } from '#lib/domain.js';
 
 	type Feedback = { error?: string; field?: string; values?: Record<string, unknown> } | null | undefined;
-	type Opcao = { value: string; label: string; icon: Component };
+	type Opcao = { value: string; label: string; icon?: Component };
 
 	let {
 		clients,
@@ -52,7 +51,7 @@
 					<span
 						class="text-muted-foreground hover:text-foreground peer-checked:bg-background peer-checked:text-foreground dark:peer-checked:bg-input/40 peer-focus-visible:ring-ring/50 flex h-8 items-center justify-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors peer-checked:shadow-sm peer-focus-visible:ring-3 peer-disabled:cursor-default {closed ? '' : 'cursor-pointer'}"
 					>
-						<opcao.icon class="size-4" />{opcao.label}
+						{#if opcao.icon}<opcao.icon class="size-4" />{/if}{opcao.label}
 					</span>
 				</label>
 			{/each}
@@ -96,18 +95,15 @@
 			<div class="grid gap-4 sm:grid-cols-2">
 				<div class="grid gap-2 sm:col-span-2">
 					<Label for="clientId">Cliente</Label>
-					<select
+					<ClientPicker
 						id="clientId"
 						name="clientId"
-						class="native-select"
+						{clients}
 						bind:value={selectedClient}
-						required
-						aria-invalid={invalid('clientId')}
-						aria-describedby={invalid('clientId') ? 'process-error' : undefined}
-					>
-						<option value="" disabled>Selecione um cliente</option>
-						{#each clients as client (client.id)}<option value={String(client.id)}>{client.name}</option>{/each}
-					</select>
+						disabled={closed || busy}
+						invalid={invalid('clientId')}
+						describedby={invalid('clientId') ? 'process-error' : undefined}
+					/>
 				</div>
 				<div class="grid gap-2">
 					<Label for="number">Número do processo</Label>
@@ -136,10 +132,7 @@
 					{ value: 'aereo', label: 'Aéreo', icon: PlaneIcon },
 					{ value: 'rodoviario', label: 'Rodoviário', icon: TruckIcon }
 				])}
-				{@render escolha('priority', 'Prioridade', [
-					{ value: 'normal', label: 'Normal', icon: CircleIcon },
-					{ value: 'urgente', label: 'Urgente', icon: FlameIcon }
-				])}
+				{@render escolha('priority', 'Prioridade', priorities.map((value) => ({ value, label: priorityLabels[value] })))}
 			</div>
 		{/snippet}
 		{@render secao('Operação', 'Tipo, modal e prioridade da carga.', operacao)}

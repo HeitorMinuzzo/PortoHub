@@ -1,4 +1,4 @@
-import { modes, operations, type ProcessInput } from '../domain.ts';
+import { modes, operations, priorities, type ProcessInput } from '../domain.ts';
 
 export class ValidationError extends Error {
 	field: string;
@@ -47,7 +47,7 @@ export function parseProcess(data: FormData): ProcessInput {
 		reference: text(data, 'reference'),
 		operation: choice(data, 'operation', operations),
 		mode: choice(data, 'mode', modes),
-		priority: choice(data, 'priority', ['normal', 'urgente']),
+		priority: choice(data, 'priority', priorities),
 		exporter: text(data, 'exporter'), agent: text(data, 'agent'),
 		agentReference: text(data, 'agentReference'), carrier: text(data, 'carrier'),
 		vessel: text(data, 'vessel'), origin: text(data, 'origin'), destination: text(data, 'destination'),

@@ -1,4 +1,5 @@
 import { test } from 'node:test';
+import { DatabaseSync } from 'node:sqlite';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -90,4 +91,34 @@ test('valida datas, sequência do transporte e opções recebidas no servidor', 
 		data.set('arrivalDate', ''); data.set('departureDate', ''); assert.equal(parseProcess(data).arrivalDate, '');
 		data.set('mode', 'inventado'); assert.throws(() => parseProcess(data), ValidationError);
 	} finally { store.close(); }
+});
+test('atualiza bancos antigos para aceitar as novas prioridades sem perder processos', () => {
+	const directory = mkdtempSync(join(tmpdir(), 'portohub-test-'));
+	const filename = join(directory, 'old.sqlite');
+	try {
+		const old = new DatabaseSync(filename);
+		old.exec(`
+			CREATE TABLE clients (id INTEGER PRIMARY KEY, name TEXT NOT NULL, cnpj TEXT NOT NULL UNIQUE, contact TEXT NOT NULL) STRICT;
+			CREATE TABLE processes (
+				id INTEGER PRIMARY KEY, number TEXT NOT NULL COLLATE NOCASE UNIQUE,
+				clientId INTEGER NOT NULL REFERENCES clients(id), openedAt TEXT NOT NULL,
+				reference TEXT NOT NULL DEFAULT '', operation TEXT NOT NULL CHECK(operation IN ('importacao','exportacao')),
+				mode TEXT NOT NULL CHECK(mode IN ('maritimo','aereo','rodoviario')),
+				priority TEXT NOT NULL CHECK(priority IN ('normal','urgente')),
+				exporter TEXT NOT NULL DEFAULT '', agent TEXT NOT NULL DEFAULT '', agentReference TEXT NOT NULL DEFAULT '',
+				carrier TEXT NOT NULL DEFAULT '', vessel TEXT NOT NULL DEFAULT '', origin TEXT NOT NULL DEFAULT '',
+				destination TEXT NOT NULL DEFAULT '', departureDate TEXT NOT NULL DEFAULT '', arrivalDate TEXT NOT NULL DEFAULT '',
+				closedAt TEXT
+			) STRICT;
+			INSERT INTO clients VALUES (1, 'Antiga', '00000000000191', 'Teste');
+			INSERT INTO processes (id, number, clientId, openedAt, operation, mode, priority) VALUES (1, 'OLD-1', 1, '2026-01-01', 'importacao', 'aereo', 'urgente');
+		`);
+		old.close();
+		const store = createStore(filename);
+		try {
+			assert.equal(store.getProcess(1)?.priority, 'urgente');
+			store.saveProcess({ ...emptyProcess(), clientId: 1, number: 'NEW-1', priority: 'alta' });
+			assert.equal(store.processes().length, 2);
+		} finally { store.close(); }
+	} finally { rmSync(directory, { recursive: true, force: true }); }
 });

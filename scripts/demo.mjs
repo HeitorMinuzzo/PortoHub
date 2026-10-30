@@ -17,11 +17,11 @@ if (!store.clients().length) {
 	const at = (offset) => { const date = new Date(`${now}T12:00:00Z`); date.setUTCDate(date.getUTCDate() + offset); return date.toISOString().slice(0, 10); };
 	const records = [
 		{ client: 0, operation: 'importacao', mode: 'maritimo', origin: 'Shanghai, CN', destination: 'Itajaí, BR', departure: -20, arrival: 5, priority: 'urgente', vessel: 'MSC Isabella', carrier: 'MSC' },
-		{ client: 1, operation: 'importacao', mode: 'aereo', origin: 'Frankfurt, DE', destination: 'Guarulhos, BR', departure: -2, arrival: 1 },
+		{ client: 1, operation: 'importacao', mode: 'aereo', origin: 'Frankfurt, DE', destination: 'Guarulhos, BR', departure: -2, arrival: 1, priority: 'alta' },
 		{ client: 2, operation: 'exportacao', mode: 'maritimo', origin: 'Navegantes, BR', destination: 'Rotterdam, NL', departure: -5, arrival: 15, vessel: 'CMA CGM Marco Polo', carrier: 'CMA CGM' },
 		{ client: 3, operation: 'importacao', mode: 'aereo', origin: 'Miami, US', destination: 'Viracopos, BR', departure: -1, arrival: 2, priority: 'urgente' },
-		{ client: 4, operation: 'exportacao', mode: 'rodoviario', origin: 'Blumenau, BR', destination: 'Buenos Aires, AR', departure: -3, arrival: 3 },
-		{ client: 0, operation: 'importacao', mode: 'maritimo', origin: 'Ningbo, CN', destination: 'Santos, BR', departure: -12, arrival: 12, vessel: 'Maersk Emerald', carrier: 'Maersk' },
+		{ client: 4, operation: 'exportacao', mode: 'rodoviario', origin: 'Blumenau, BR', destination: 'Buenos Aires, AR', departure: -3, arrival: 3, priority: 'media' },
+		{ client: 0, operation: 'importacao', mode: 'maritimo', origin: 'Ningbo, CN', destination: 'Santos, BR', departure: -12, arrival: 12, vessel: 'Maersk Emerald', carrier: 'Maersk', priority: 'media' },
 		{ client: 1, operation: 'importacao', mode: 'maritimo', origin: 'Hamburgo, DE', destination: 'Itajaí, BR', departure: -35, arrival: -3, vessel: 'Hapag-Lloyd Berlin', carrier: 'Hapag-Lloyd', closed: true },
 		{ client: 2, operation: 'exportacao', mode: 'rodoviario', origin: 'Joinville, BR', destination: 'Montevidéu, UY', departure: -12, arrival: -8, closed: true }
 	];

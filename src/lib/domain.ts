@@ -1,7 +1,9 @@
 export const operations = ['importacao', 'exportacao'] as const;
 export const modes = ['maritimo', 'aereo', 'rodoviario'] as const;
+export const priorities = ['normal', 'media', 'alta', 'urgente'] as const;
 export type Operation = (typeof operations)[number];
 export type Mode = (typeof modes)[number];
+export type Priority = (typeof priorities)[number];
 export type Client = { id: number; name: string; cnpj: string; contact: string };
 export type ProcessInput = {
 	number: string;
@@ -10,7 +12,7 @@ export type ProcessInput = {
 	reference: string;
 	operation: Operation;
 	mode: Mode;
-	priority: 'normal' | 'urgente';
+	priority: Priority;
 	exporter: string;
 	agent: string;
 	agentReference: string;
@@ -33,6 +35,9 @@ export const operationLabels: Record<Operation, string> = {
 };
 export const modeLabels: Record<Mode, string> = {
 	maritimo: 'Marítimo', aereo: 'Aéreo', rodoviario: 'Rodoviário'
+};
+export const priorityLabels: Record<Priority, string> = {
+	normal: 'Normal', media: 'Média', alta: 'Alta', urgente: 'Urgente'
 };
 export function formatDate(value: string | null | undefined) {
 	if (!value) return '—';

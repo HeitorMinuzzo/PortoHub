@@ -4,6 +4,18 @@ import { mkdirSync } from 'node:fs';
 import type { Client, ProcessFilters, ProcessInput, ProcessRecord } from '../domain.ts';
 import { ValidationError } from './validation.ts';
 
+const processesTable = (name: string) => `CREATE TABLE IF NOT EXISTS ${name} (
+	id INTEGER PRIMARY KEY, number TEXT NOT NULL COLLATE NOCASE UNIQUE,
+	clientId INTEGER NOT NULL REFERENCES clients(id), openedAt TEXT NOT NULL,
+	reference TEXT NOT NULL DEFAULT '', operation TEXT NOT NULL CHECK(operation IN ('importacao','exportacao')),
+	mode TEXT NOT NULL CHECK(mode IN ('maritimo','aereo','rodoviario')),
+	priority TEXT NOT NULL CHECK(priority IN ('normal','media','alta','urgente')),
+	exporter TEXT NOT NULL DEFAULT '', agent TEXT NOT NULL DEFAULT '', agentReference TEXT NOT NULL DEFAULT '',
+	carrier TEXT NOT NULL DEFAULT '', vessel TEXT NOT NULL DEFAULT '', origin TEXT NOT NULL DEFAULT '',
+	destination TEXT NOT NULL DEFAULT '', departureDate TEXT NOT NULL DEFAULT '', arrivalDate TEXT NOT NULL DEFAULT '',
+	closedAt TEXT
+) STRICT;`;
+
 export function createStore(filename: string) {
 	if (filename !== ':memory:') mkdirSync(dirname(filename), { recursive: true });
 	const db = new DatabaseSync(filename);
@@ -14,20 +26,26 @@ export function createStore(filename: string) {
 		CREATE TABLE IF NOT EXISTS clients (
 			id INTEGER PRIMARY KEY, name TEXT NOT NULL, cnpj TEXT NOT NULL UNIQUE, contact TEXT NOT NULL
 		) STRICT;
-		CREATE TABLE IF NOT EXISTS processes (
-			id INTEGER PRIMARY KEY, number TEXT NOT NULL COLLATE NOCASE UNIQUE,
-			clientId INTEGER NOT NULL REFERENCES clients(id), openedAt TEXT NOT NULL,
-			reference TEXT NOT NULL DEFAULT '', operation TEXT NOT NULL CHECK(operation IN ('importacao','exportacao')),
-			mode TEXT NOT NULL CHECK(mode IN ('maritimo','aereo','rodoviario')),
-			priority TEXT NOT NULL CHECK(priority IN ('normal','urgente')),
-			exporter TEXT NOT NULL DEFAULT '', agent TEXT NOT NULL DEFAULT '', agentReference TEXT NOT NULL DEFAULT '',
-			carrier TEXT NOT NULL DEFAULT '', vessel TEXT NOT NULL DEFAULT '', origin TEXT NOT NULL DEFAULT '',
-			destination TEXT NOT NULL DEFAULT '', departureDate TEXT NOT NULL DEFAULT '', arrivalDate TEXT NOT NULL DEFAULT '',
-			closedAt TEXT
-		) STRICT;
+		${processesTable('processes')}
 		CREATE INDEX IF NOT EXISTS processes_opened ON processes(openedAt);
 		CREATE INDEX IF NOT EXISTS processes_arrival ON processes(arrivalDate);
 	`);
+	// Bancos antigos só aceitavam normal/urgente: recria a tabela com as novas prioridades
+	const atual = db.prepare("SELECT sql FROM sqlite_master WHERE name = 'processes'").get() as { sql: string };
+	if (!atual.sql.includes("'media'")) {
+		db.exec(`
+			PRAGMA foreign_keys = OFF;
+			BEGIN;
+			${processesTable('processes_new')}
+			INSERT INTO processes_new SELECT * FROM processes;
+			DROP TABLE processes;
+			ALTER TABLE processes_new RENAME TO processes;
+			CREATE INDEX processes_opened ON processes(openedAt);
+			CREATE INDEX processes_arrival ON processes(arrivalDate);
+			COMMIT;
+			PRAGMA foreign_keys = ON;
+		`);
+	}
 	const columns = ['number','clientId','openedAt','reference','operation','mode','priority','exporter','agent','agentReference','carrier','vessel','origin','destination','departureDate','arrivalDate'] as const;
 	const select = 'SELECT p.*, c.name AS clientName, c.cnpj AS clientCnpj FROM processes p JOIN clients c ON c.id = p.clientId';
 	function getClient(clientId: number) {

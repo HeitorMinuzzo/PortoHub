@@ -1,36 +1,62 @@
 <script lang="ts">
 	import './layout.css';
 	import { page } from '$app/state';
-	import { Files, UsersRound, ArrowUpRight } from '@lucide/svelte';
+	import { ModeWatcher, toggleMode } from 'mode-watcher';
+	import * as Sidebar from '#lib/components/ui/sidebar/index.js';
+	import { Separator } from '#lib/components/ui/separator/index.js';
+	import { Button } from '#lib/components/ui/button/index.js';
+	import { Toaster } from '#lib/components/ui/sonner/index.js';
+	import AppSidebar from '#lib/components/app-sidebar.svelte';
+	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
+	import SunIcon from '@lucide/svelte/icons/sun';
+	import MoonIcon from '@lucide/svelte/icons/moon';
 	import favicon from '#lib/assets/favicon.svg';
 	import type { LayoutProps } from './$types';
 
 	let { children, data }: LayoutProps = $props();
-	const clientsActive = $derived(page.url.pathname.startsWith('/clientes'));
+
+	// Trilha do cabeçalho a partir da rota atual
+	const trilha = $derived.by(() => {
+		const path = page.url.pathname;
+		if (path.startsWith('/clientes')) return [{ label: 'Clientes' }];
+		if (path === '/processos/novo') return [{ label: 'Processos', href: '/' }, { label: 'Novo processo' }];
+		const process = (page.data as { process?: { number: string } }).process;
+		if (process) return [{ label: 'Processos', href: '/' }, { label: process.number }];
+		return [{ label: 'Processos' }];
+	});
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
-	<meta name="theme-color" content="#173c35" />
 	<meta name="description" content="PortoHub. Clientes e processos de comércio exterior em um só lugar." />
 </svelte:head>
 
-<a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
-<div class="app-shell">
-	<aside class="sidebar">
-		<a href="/" class="brand" aria-label="PortoHub, início">
-			<svg class="brand-symbol" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M7 25V7h10a7 7 0 0 1 0 14h-3" stroke="currentColor" stroke-width="3.5"/><path d="m14 12 5 4-5 4" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/></svg>
-			<span>porto<span class="brand-light">hub</span><span class="brand-period">.</span></span>
-		</a>
-		<div class="nav-caption">ESPAÇO DE TRABALHO</div>
-		<nav aria-label="Navegação principal">
-			<a href="/" class:active={!clientsActive} aria-current={!clientsActive ? 'page' : undefined}><Files size={18} strokeWidth={1.7} aria-hidden="true"/><span>Processos</span></a>
-			<a href="/clientes" class:active={clientsActive} aria-current={clientsActive ? 'page' : undefined}><UsersRound size={18} strokeWidth={1.7} aria-hidden="true"/><span>Clientes</span></a>
-		</nav>
-		<div class="sidebar-footer"><span class="footer-mark"><ArrowUpRight size={17} aria-hidden="true"/></span><span>Comércio exterior.<br/><strong>Tudo em ordem.</strong></span></div>
-	</aside>
-	<div class="workspace">
-		<header class="workspace-bar"><span class="workspace-label"><span class="workspace-dot"></span>Gestão de operações</span>{#if data.demo}<span class="demo-label">Demonstração</span>{/if}<span class="app-name">PORTOHUB</span></header>
-		<main id="conteudo" class="main-content" tabindex="-1">{@render children()}</main>
-	</div>
-</div>
+<ModeWatcher defaultMode="light" />
+<Toaster richColors position="top-right" />
+
+<Sidebar.Provider>
+	<AppSidebar counts={data.counts} clientCount={data.clientCount} demo={data.demo} />
+	<Sidebar.Inset class="min-w-0">
+		<header class="bg-background/80 sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b px-4 backdrop-blur">
+			<Sidebar.Trigger class="-ml-1" />
+			<Separator orientation="vertical" class="mr-2 data-[orientation=vertical]:h-4" />
+			<nav aria-label="Trilha" class="flex min-w-0 flex-1 items-center gap-1 text-sm">
+				{#each trilha as item, i (i)}
+					{#if i > 0}<ChevronRightIcon class="text-muted-foreground size-3.5 shrink-0" />{/if}
+					{#if item.href}
+						<a href={item.href} class="text-muted-foreground hover:text-foreground truncate transition-colors">{item.label}</a>
+					{:else}
+						<span class="truncate font-medium" aria-current="page">{item.label}</span>
+					{/if}
+				{/each}
+			</nav>
+			<Button variant="ghost" size="icon-sm" onclick={toggleMode} aria-label="Alternar tema" title="Alternar tema">
+				<SunIcon class="dark:hidden" />
+				<MoonIcon class="hidden dark:block" />
+			</Button>
+		</header>
+		<main id="conteudo" class="mx-auto w-full max-w-7xl flex-1 p-4 md:p-6 lg:p-8" tabindex="-1">
+			{@render children()}
+		</main>
+	</Sidebar.Inset>
+</Sidebar.Provider>

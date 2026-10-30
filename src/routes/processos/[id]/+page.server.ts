@@ -4,11 +4,11 @@ import { parseProcess, id } from '#lib/server/validation.js';
 import { actionError } from '#lib/server/action-error.js';
 import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = ({ params, url }) => {
+export const load: PageServerLoad = ({ params }) => {
 	const processId = Number(params.id);
 	const process = Number.isSafeInteger(processId) ? store.getProcess(processId) : undefined;
 	if (!process) error(404, 'Processo não encontrado.');
-	return { process, clients: store.clients(), saved: url.searchParams.has('saved') };
+	return { process, clients: store.clients() };
 };
 export const actions: Actions = {
 	save: async ({ request, params }) => {

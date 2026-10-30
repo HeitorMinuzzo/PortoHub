@@ -1,5 +1,14 @@
 <script lang="ts">
-	import { Check, Circle } from '@lucide/svelte';
+	import { Badge } from '#lib/components/ui/badge/index.js';
+	import CheckIcon from '@lucide/svelte/icons/check';
+
 	let { closed = false }: { closed?: boolean } = $props();
 </script>
-<span class:state-closed={closed} class="process-state">{#if closed}<Check size={12} strokeWidth={2} aria-hidden="true"/>Encerrado{:else}<Circle size={8} fill="currentColor" aria-hidden="true"/>Em aberto{/if}</span>
+
+{#if closed}
+	<Badge variant="secondary" class="text-muted-foreground"><CheckIcon />Encerrado</Badge>
+{:else}
+	<Badge variant="outline" class="border-success/30 bg-success/10 text-success">
+		<span class="bg-success size-1.5 rounded-full" aria-hidden="true"></span>Em aberto
+	</Badge>
+{/if}

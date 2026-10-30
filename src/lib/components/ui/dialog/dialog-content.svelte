@@ -3,7 +3,7 @@
 	import XIcon from '@lucide/svelte/icons/x';
 	import { Button } from "#lib/components/ui/button/index.js";
 	import { cn, type WithoutChildrenOrChild } from "#lib/utils.js";
-	import DialogOverlay from "./dialog-overlay.svelte";
+	import * as Dialog from "./index.js";
 	import DialogPortal from "./dialog-portal.svelte";
 	import type { Snippet } from "svelte";
 	import type { ComponentProps } from "svelte";
@@ -23,7 +23,7 @@
 </script>
 
 <DialogPortal {...portalProps}>
-	<DialogOverlay />
+	<Dialog.Overlay />
 	<DialogPrimitive.Content
 		bind:ref
 		data-slot="dialog-content"
@@ -39,7 +39,7 @@
 				{#snippet child({ props })}
 					<Button variant="ghost" class="absolute top-4 right-4" size="icon-sm" {...props}>
 						<XIcon  />
-						<span class="sr-only">Fechar</span>
+						<span class="sr-only">Close</span>
 					</Button>
 				{/snippet}
 			</DialogPrimitive.Close>

@@ -51,6 +51,8 @@ test('filtra mês de abertura e data de chegada de forma independente e combinad
 		assert.equal(store.processes({ arrival: '2026-11-05' }).length, 2);
 		assert.equal(store.processes({ month: '2026-10', arrival: '2026-11-05' }).length, 1);
 		assert.equal(store.processes({ month: "' OR 1=1 --" }).length, 0);
+		assert.equal(store.processes({ priority: 'normal' }).length, store.processes().length);
+		assert.equal(store.processes({ priority: 'urgente' }).length, 0);
 	} finally { store.close(); }
 });
 test('encerra sem excluir e preserva os dados para consulta', () => {

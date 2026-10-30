@@ -76,6 +76,7 @@ export function createStore(filename: string) {
 			if (filters.status === 'closed') where.push('p.closedAt IS NOT NULL');
 			if (filters.month) { where.push('substr(p.openedAt, 1, 7) = ?'); values.push(filters.month); }
 			if (filters.arrival) { where.push('p.arrivalDate = ?'); values.push(filters.arrival); }
+			if (filters.priority) { where.push('p.priority = ?'); values.push(filters.priority); }
 			return db.prepare(`${select}${where.length ? ' WHERE ' + where.join(' AND ') : ''} ORDER BY p.openedAt DESC, p.id DESC`).all(...values) as ProcessRecord[];
 		},
 		counts() {

@@ -7,6 +7,7 @@
 	import EmptyState from '#lib/components/empty-state.svelte';
 	import ProcessState from '#lib/components/process-state.svelte';
 	import PriorityLabel from '#lib/components/priority-label.svelte';
+	import PriorityFilter from '#lib/components/priority-filter.svelte';
 	import DatePicker from '#lib/components/date-picker.svelte';
 	import ModeIcon from '#lib/components/mode-icon.svelte';
 	import PlusIcon from '@lucide/svelte/icons/plus';
@@ -27,13 +28,14 @@
 		{ key: 'open', label: 'Em aberto', count: data.counts.open },
 		{ key: 'closed', label: 'Encerrados', count: data.counts.closed }
 	]);
-	const filtrando = $derived(Boolean(data.filters.month || data.filters.arrival));
+	const filtrando = $derived(Boolean(data.filters.month || data.filters.arrival || data.filters.priority));
 
 	function statusUrl(status: string) {
 		const query = new URLSearchParams();
 		if (status !== 'all') query.set('status', status);
 		if (data.filters.month) query.set('month', data.filters.month);
 		if (data.filters.arrival) query.set('arrival', data.filters.arrival);
+		if (data.filters.priority) query.set('priority', data.filters.priority);
 		const qs = query.toString();
 		return qs ? `/?${qs}` : '/';
 	}
@@ -73,6 +75,10 @@
 		<div class="grid gap-1.5">
 			<Label for="arrival" class="text-muted-foreground text-xs">Data de chegada</Label>
 			<DatePicker id="arrival" name="arrival" mode="date" value={data.filters.arrival} placeholder="Qualquer data" class="w-44" />
+		</div>
+		<div class="grid gap-1.5">
+			<Label for="priority" class="text-muted-foreground text-xs">Prioridade</Label>
+			<PriorityFilter id="priority" name="priority" value={data.filters.priority} class="w-48" />
 		</div>
 		<Button type="submit" variant="outline"><FilterIcon />Filtrar</Button>
 		{#if filtrando}
@@ -174,7 +180,7 @@
 		</ul>
 
 		<footer class="text-muted-foreground bg-muted/30 border-t px-4 py-2.5 text-xs">
-			{data.processes.length} {data.processes.length === 1 ? 'processo' : 'processos'}{filtrando ? ' no período filtrado' : ''}
+			{data.processes.length} {data.processes.length === 1 ? 'processo' : 'processos'}{filtrando ? ' com os filtros aplicados' : ''}
 		</footer>
 	{:else if data.counts.total}
 		<EmptyState icon={FolderOpenIcon} title="Nenhum processo encontrado" description="Não há processos com os filtros selecionados.">

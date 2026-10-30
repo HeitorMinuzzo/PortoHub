@@ -29,7 +29,7 @@ export type ProcessRecord = ProcessInput & {
 	clientName: string;
 	clientCnpj: string;
 };
-export type ProcessFilters = { status?: string; month?: string; arrival?: string };
+export type ProcessFilters = { status?: string; month?: string; arrival?: string; priority?: string };
 export const operationLabels: Record<Operation, string> = {
 	importacao: 'Importação', exportacao: 'Exportação'
 };

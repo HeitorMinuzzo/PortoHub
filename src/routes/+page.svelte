@@ -2,19 +2,18 @@
 	import { goto } from '$app/navigation';
 	import * as Table from '#lib/components/ui/table/index.js';
 	import { Button } from '#lib/components/ui/button/index.js';
-	import { Input } from '#lib/components/ui/input/index.js';
 	import { Label } from '#lib/components/ui/label/index.js';
 	import PageHeader from '#lib/components/page-header.svelte';
 	import EmptyState from '#lib/components/empty-state.svelte';
 	import ProcessState from '#lib/components/process-state.svelte';
 	import PriorityLabel from '#lib/components/priority-label.svelte';
+	import DatePicker from '#lib/components/date-picker.svelte';
 	import ModeIcon from '#lib/components/mode-icon.svelte';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
 	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
 	import ArrowDownLeftIcon from '@lucide/svelte/icons/arrow-down-left';
 	import ArrowUpRightIcon from '@lucide/svelte/icons/arrow-up-right';
-	import CalendarIcon from '@lucide/svelte/icons/calendar';
 	import FolderOpenIcon from '@lucide/svelte/icons/folder-open';
 	import FilterIcon from '@lucide/svelte/icons/filter';
 	import XIcon from '@lucide/svelte/icons/x';
@@ -69,11 +68,11 @@
 		<input type="hidden" name="status" value={data.filters.status} />
 		<div class="grid gap-1.5">
 			<Label for="month" class="text-muted-foreground text-xs">Mês de abertura</Label>
-			<Input id="month" type="month" name="month" value={data.filters.month} class="w-40" />
+			<DatePicker id="month" name="month" mode="month" value={data.filters.month} placeholder="Qualquer mês" class="w-48" />
 		</div>
 		<div class="grid gap-1.5">
 			<Label for="arrival" class="text-muted-foreground text-xs">Data de chegada</Label>
-			<Input id="arrival" type="date" name="arrival" value={data.filters.arrival} class="w-40" />
+			<DatePicker id="arrival" name="arrival" mode="date" value={data.filters.arrival} placeholder="Qualquer data" class="w-44" />
 		</div>
 		<Button type="submit" variant="outline"><FilterIcon />Filtrar</Button>
 		{#if filtrando}
@@ -82,16 +81,22 @@
 	</form>
 </div>
 
+{#snippet dataOuTraco(valor: string)}
+	{#if valor}{formatDate(valor)}{:else}<span class="text-muted-foreground">—</span>{/if}
+{/snippet}
+
 <section class="overflow-hidden rounded-xl border" aria-label="Lista de processos">
 	{#if data.processes.length}
 		<!-- Telas largas: tabela -->
-		<div class="hidden lg:block">
+		<div class="hidden xl:block">
 			<Table.Root>
 				<Table.Header class="bg-muted/50">
 					<Table.Row class="hover:bg-transparent">
 						<Table.Head class="pl-4">Processo</Table.Head>
 						<Table.Head>Operação</Table.Head>
-						<Table.Head class="hidden xl:table-cell">Trajeto</Table.Head>
+						<Table.Head class="hidden 2xl:table-cell">Trajeto</Table.Head>
+						<Table.Head>Abertura</Table.Head>
+						<Table.Head>Embarque</Table.Head>
 						<Table.Head>Chegada</Table.Head>
 						<Table.Head>Prioridade</Table.Head>
 						<Table.Head>Situação</Table.Head>
@@ -114,17 +119,16 @@
 									<ModeIcon mode={process.mode} class="size-3.5" />{modeLabels[process.mode]}
 								</div>
 							</Table.Cell>
-							<Table.Cell class="hidden max-w-72 xl:table-cell">
+							<Table.Cell class="hidden max-w-72 2xl:table-cell">
 								<div class="flex min-w-0 items-center gap-1.5">
 									<span class="truncate">{process.origin || 'A definir'}</span>
 									<ArrowRightIcon class="text-muted-foreground size-3.5 shrink-0" />
 									<span class="truncate">{process.destination || 'A definir'}</span>
 								</div>
 							</Table.Cell>
-							<Table.Cell class="tabular-nums">
-								{formatDate(process.arrivalDate)}
-								{#if process.departureDate}<div class="text-muted-foreground text-xs">Embarque {formatDate(process.departureDate).slice(0, 5)}</div>{/if}
-							</Table.Cell>
+							<Table.Cell class="text-muted-foreground tabular-nums">{formatDate(process.openedAt)}</Table.Cell>
+							<Table.Cell class="tabular-nums">{@render dataOuTraco(process.departureDate)}</Table.Cell>
+							<Table.Cell class="tabular-nums">{@render dataOuTraco(process.arrivalDate)}</Table.Cell>
 							<Table.Cell><PriorityLabel priority={process.priority} /></Table.Cell>
 							<Table.Cell><ProcessState closed={Boolean(process.closedAt)} /></Table.Cell>
 							<Table.Cell class="pr-3">
@@ -137,7 +141,7 @@
 		</div>
 
 		<!-- Telas estreitas: lista -->
-		<ul class="divide-y lg:hidden">
+		<ul class="divide-y xl:hidden">
 			{#each data.processes as process (process.id)}
 				<li>
 					<a href={`/processos/${process.id}`} class="hover:bg-muted/50 flex flex-col gap-2 p-4 transition-colors">
@@ -152,8 +156,15 @@
 							<ArrowRightIcon class="text-muted-foreground size-3.5" />
 							<span>{process.destination || 'A definir'}</span>
 						</div>
+						<dl class="grid grid-cols-3 gap-2 text-xs">
+							{#each [['Abertura', process.openedAt], ['Embarque', process.departureDate], ['Chegada', process.arrivalDate]] as [rotulo, valor] (rotulo)}
+								<div>
+									<dt class="text-muted-foreground">{rotulo}</dt>
+									<dd class="mt-0.5 tabular-nums">{@render dataOuTraco(valor)}</dd>
+								</div>
+							{/each}
+						</dl>
 						<div class="flex items-center gap-3 text-xs">
-							<span class="text-muted-foreground flex items-center gap-1.5 tabular-nums"><CalendarIcon class="size-3.5" />{formatDate(process.arrivalDate)}</span>
 							<PriorityLabel priority={process.priority} />
 							<ChevronRightIcon class="text-muted-foreground ml-auto size-4" />
 						</div>

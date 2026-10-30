@@ -5,6 +5,7 @@
 	import { Button } from '#lib/components/ui/button/index.js';
 	import { Input } from '#lib/components/ui/input/index.js';
 	import { Label } from '#lib/components/ui/label/index.js';
+	import DatePicker from '#lib/components/date-picker.svelte';
 	import ClientPicker from '#lib/components/client-picker.svelte';
 	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
 	import ArrowDownLeftIcon from '@lucide/svelte/icons/arrow-down-left';
@@ -111,7 +112,7 @@
 				</div>
 				<div class="grid gap-2">
 					<Label for="openedAt">Data de abertura</Label>
-					<Input id="openedAt" name="openedAt" type="date" value={values.openedAt} required aria-invalid={invalid('openedAt')} />
+					<DatePicker id="openedAt" name="openedAt" mode="date" value={values.openedAt} placeholder="Selecione a data" clearable={false} disabled={closed || busy} invalid={invalid('openedAt')} />
 				</div>
 				<div class="grid gap-2 sm:col-span-2">
 					<Label for="reference">Referência do cliente <span class="text-muted-foreground font-normal">(opcional)</span></Label>
@@ -168,17 +169,19 @@
 				</div>
 				<div class="grid gap-2">
 					<Label for="departureDate">Data de embarque</Label>
-					<Input id="departureDate" name="departureDate" type="date" value={values.departureDate} aria-invalid={invalid('departureDate')} />
+					<DatePicker id="departureDate" name="departureDate" mode="date" value={values.departureDate} placeholder="Selecione a data" disabled={closed || busy} invalid={invalid('departureDate')} />
 				</div>
 				<div class="grid gap-2">
 					<Label for="arrivalDate">Data de chegada</Label>
-					<Input
+					<DatePicker
 						id="arrivalDate"
 						name="arrivalDate"
-						type="date"
+						mode="date"
 						value={values.arrivalDate}
-						aria-invalid={invalid('arrivalDate')}
-						aria-describedby={invalid('arrivalDate') ? 'process-error' : undefined}
+						placeholder="Selecione a data"
+						disabled={closed || busy}
+						invalid={invalid('arrivalDate')}
+						describedby={invalid('arrivalDate') ? 'process-error' : undefined}
 					/>
 				</div>
 			</div>

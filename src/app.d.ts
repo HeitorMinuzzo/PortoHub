@@ -6,7 +6,7 @@ declare global {
 		// interface Locals {}
 		// interface PageData {}
 		// interface PageState {}
-		// interface Platform {}
+		interface Platform { env?: { DB?: import('./lib/server/d1-store.ts').D1Database } }
 	}
 }
 

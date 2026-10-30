@@ -5,7 +5,9 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
-		"build": "vite build",
+		"build": "node scripts/build.mjs",
+		"build:local": "vite build",
+		"build:hosted": "node scripts/build.mjs --hosted-only",
 		"preview": "vite preview",
 		"start": "node scripts/start.mjs",
 		"test": "node --experimental-strip-types --test tests/*.test.ts",
@@ -16,6 +18,7 @@
 	"devDependencies": {
 		"@fontsource-variable/inter": "^5.3.0",
 		"@internationalized/date": "^3.12.0",
+		"@sveltejs/adapter-cloudflare": "^8.0.2",
 		"@sveltejs/adapter-node": "^6.0.0",
 		"@sveltejs/kit": "^3.0.0",
 		"@sveltejs/vite-plugin-svelte": "^7.2.0",
@@ -23,6 +26,7 @@
 		"@types/node": "^24.0.0",
 		"bits-ui": "^2.20.0",
 		"cn": "^0.5.0",
+		"esbuild": "^0.28.2",
 		"mode-watcher": "^1.1.0",
 		"shadcn-svelte": "^1.7.1",
 		"svelte": "^5.57.1",
@@ -32,7 +36,8 @@
 		"tailwindcss": "^4.1.0",
 		"tw-animate-css": "^1.4.0",
 		"typescript": "^6.0.3",
-		"vite": "^8.3.0"
+		"vite": "^8.3.0",
+		"wrangler": "^4.156.0"
 	},
 	"dependencies": {
 		"@lucide/svelte": "^1.64.0"

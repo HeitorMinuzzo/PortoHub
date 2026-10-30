@@ -1,5 +1,6 @@
-import { store } from '#lib/server/db.js';
+import { getStore } from '#lib/server/runtime-store.js';
 
-export function load() {
-	return { counts: store.counts(), clientCount: store.clients().length };
+export async function load({ platform }: { platform?: App.Platform }) {
+	const store = getStore(platform);
+	return { counts: await store.counts(), clientCount: (await store.clients()).length };
 }

@@ -1,0 +1,13 @@
+{
+	"name": "portohub",
+	"main": ".svelte-kit/cloudflare/_worker.js",
+	"compatibility_date": "2026-05-15",
+	"compatibility_flags": ["nodejs_compat"],
+	"assets": { "directory": "dist/client", "binding": "ASSETS" },
+	"d1_databases": [{
+		"binding": "DB",
+		"database_name": "site-creator-d1",
+		// Identificador exclusivo da emulação local. Sites injeta o banco real na publicação.
+		"database_id": "00000000-0000-4000-8000-000000000000"
+	}]
+}

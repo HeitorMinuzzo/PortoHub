@@ -8,7 +8,7 @@ Controle direto de clientes e processos de importação e exportação.
 - Processos vinculados a clientes, com todos os campos solicitados: número manual, abertura, referência do cliente, operação, modal, prioridade, exportador, agente de carga, processo do agente, armador, navio, locais e datas de embarque e chegada.
 - Filtros combináveis por mês de abertura, data exata de chegada, prioridade e situação.
 - Encerramento com data registrada e consulta dos dados encerrados.
-- Banco SQLite no servidor, com persistência entre execuções.
+- Banco SQLite no uso local e Cloudflare D1 na hospedagem, com persistência entre execuções.
 - Layout adaptado para computador e celular.
 
 ## Executar
@@ -39,9 +39,21 @@ npm run build
 npm start
 ```
 
-O build usa o adapter-node. `npm start` inicia o servidor HTTP local em `http://127.0.0.1:3000`, com `HOST` e `PORT` configuráveis. `PORTOHUB_DB_PATH` permite informar outro caminho para o banco. O inicializador informa o protocolo HTTP real ao adapter e preserva a proteção de origem dos formulários. Para uma futura hospedagem com HTTPS/proxy, configure a origem e o proxy conforme o adapter-node 6. A hospedagem deve manter armazenamento persistente para a pasta do banco.
+O build gera a versão Node em `build/` e o Worker da hospedagem em `dist/`. `npm start` inicia o servidor HTTP local em `http://127.0.0.1:3000`, com `HOST` e `PORT` configuráveis. `PORTOHUB_DB_PATH` permite informar outro caminho para o banco local. O inicializador informa o protocolo HTTP real ao adapter e preserva a proteção de origem dos formulários.
 
-Esta versão foi preparada para execução local/interna e não inclui login. Não houve publicação em hospedagem externa.
+Para gerar apenas uma versão, use `npm run build:local` ou `npm run build:hosted`.
+
+## Hospedagem pública de avaliação
+
+Endereço: https://portohub.leafybowl27.chatgpt.site/
+
+A publicação usa Sites, SvelteKit com adapter-cloudflare e um banco D1 próprio, declarado em `.openai/hosting.json`. O banco local de `data/` não é enviado para a hospedagem. A base online começa vazia e mantém os registros criados no link entre acessos e atualizações do site.
+
+O endereço é público e não inclui login. Use dados fictícios na avaliação: todos que acessarem o link podem consultar e alterar os registros da base online.
+
+As migrações em `drizzle/` são aplicadas pelo Sites antes da publicação. Não altere uma migração já aplicada; adicione uma nova para futuras mudanças. O identificador em `wrangler.jsonc` é apenas para emulação local; o Sites provisiona e conecta o banco real.
+
+Para atualizar, mantenha o `project_id` existente e use o fluxo de preparação de fonte e publicação do Sites, com o build em `dist/`. O arquivo SQLite local e os diretórios de testes, prévia e artefatos não entram no pacote publicado.
 
 ## Dados e regras
 

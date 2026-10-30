@@ -1,6 +1,7 @@
 node_modules
 /data/
 /artifacts/
+/outputs/
 
 # Output
 .output
@@ -9,6 +10,7 @@ node_modules
 .wrangler
 /.svelte-kit
 /build
+/dist/
 
 # OS
 .DS_Store

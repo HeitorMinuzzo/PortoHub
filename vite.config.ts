@@ -1,9 +1,16 @@
 import adapter from '@sveltejs/adapter-node';
+import cloudflare from '@sveltejs/adapter-cloudflare';
+import { fileURLToPath } from 'node:url';
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
+const hosted = process.env.PORTOHUB_TARGET === 'cloudflare';
+
 export default defineConfig({
+	resolve: {
+		alias: hosted ? [{ find: '#lib/server/runtime-store.js', replacement: fileURLToPath(new URL('./src/lib/server/runtime-cloudflare.ts', import.meta.url)) }] : []
+	},
 	plugins: [
 		tailwindcss(),
 		sveltekit({
@@ -13,7 +20,7 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 
-			adapter: adapter()
+			adapter: hosted ? cloudflare({ config: 'wrangler.jsonc' }) : adapter()
 		})
 	]
 });
